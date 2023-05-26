@@ -1,10 +1,3 @@
--- impacta.criptomoeda definition
-
--- Drop table
-
--- DROP TABLE impacta.criptomoeda;
-
-create database airflow;
 CREATE SCHEMA impacta AUTHORIZATION airflow;
 
 CREATE TABLE impacta.criptomoeda (
@@ -13,12 +6,6 @@ CREATE TABLE impacta.criptomoeda (
 	codigo varchar(255) NOT NULL,
 	CONSTRAINT criptomoeda_pkey PRIMARY KEY (id)
 );
-
--- impacta.valores definition
-
--- Drop table
-
--- DROP TABLE impacta.valores;
 
 CREATE TABLE impacta.valores (
 	id serial4 NOT NULL,

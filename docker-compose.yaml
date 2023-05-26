@@ -71,6 +71,7 @@ services:
       - 5432:5432
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
+      - ./script_banco.sql:/docker-entrypoint-initdb.d/0_init.sql
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 5s

@@ -21,7 +21,7 @@ default_args = {
     'schedule_interval': None
     }
 
-HOST_BANCO_DADOS = "172.23.0.4"
+HOST_BANCO_DADOS = "172.23.0.3"
 CODIGO_CRIPTO = None
 VALOR_MAXIMO_ALERTA = 130000
 
