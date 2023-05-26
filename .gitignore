@@ -1,0 +1,8 @@
+logs/coin_market/busca_moedas_abaixo_valor/*
+logs/coin_market/trata_informacoes/*
+logs/coin_market/salva_banco_dados_relacional/*
+logs/coin_market/busca_moedas_abaixo_valor/*
+logs/coin_market/extrair_api_coin/*
+logs/coin_market/disparar_email/*
+logs/dag_processor_manager/*
+logs/scheduler/*
