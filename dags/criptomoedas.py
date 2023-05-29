@@ -7,6 +7,7 @@ import numpy
 import logging
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from pymongo import MongoClient
 
 # DAG default arguments
 default_args = {
@@ -21,7 +22,8 @@ default_args = {
     'schedule_interval': None
     }
 
-HOST_BANCO_DADOS = "172.23.0.3"
+HOST_BANCO_RELACIONAL = "172.29.0.3"
+HOST_BANCO_NAO_RELACIONAL="172.29.0.2"
 CODIGO_CRIPTO = None
 VALOR_MAXIMO_ALERTA = 130000
 
@@ -58,10 +60,17 @@ def coin_market():
             lista_moedas_geral.append(moeda)
 
         return lista_moedas_geral
+    
+    @task
+    def salva_banco_dados_nao_relacional(registros):
+        conexao = conecta_banco_nosql()
+        cripto = conexao["criptomoeda"]
+        cripto.insert_many(registros)
+        return True
    
     @task
     def salva_banco_dados_relacional(registros):
-        conexao = conecta_banco()
+        conexao = conecta_banco_relacional()
         
         try:
             for reg in registros:
@@ -90,8 +99,8 @@ def coin_market():
 
 
     @task
-    def busca_moedas_abaixo_valor (salvou):
-        conexao = conecta_banco()
+    def busca_moedas_abaixo_valor (relacional):
+        conexao = conecta_banco_relacional()
         query = "select c.nome,round(v.valor,2) as valor from impacta.criptomoeda c inner join impacta.valores v on v.id_criptomoeda = c.id "
         query+= "where date(data_cadastro)=%s and v.valor < %s"
 
@@ -140,7 +149,7 @@ def coin_market():
 
         return True
     
-    def conecta_banco():
+    def conecta_banco_relacional():
         import sys
 
         LOGGER = logging.getLogger("conecta_banco.task")
@@ -149,7 +158,7 @@ def coin_market():
             conn = psycopg2.connect(
                 user="airflow",
                 password="airflow",
-                host=HOST_BANCO_DADOS,
+                host=HOST_BANCO_RELACIONAL,
                 port=5432,
                 database="airflow"
 
@@ -166,10 +175,16 @@ def coin_market():
         conexao.commit()
         return cur
     
+    def conecta_banco_nosql():
+        CONNECTION_STRING = "mongodb://root:123@"+HOST_BANCO_NAO_RELACIONAL+"/?authMechanism=DEFAULT"
+        client = MongoClient(CONNECTION_STRING)
+        return client['airflow']
+    
     registros =  extrair_api_coin()
     lista_tratada = trata_informacoes(registros)
-    salvou = salva_banco_dados_relacional(lista_tratada)
-    lista = busca_moedas_abaixo_valor(salvou)
+    relacional = salva_banco_dados_relacional(lista_tratada)
+    salva_banco_dados_nao_relacional(lista_tratada)
+    lista = busca_moedas_abaixo_valor(relacional)
     disparar_email(lista)
 
 dag = coin_market()
