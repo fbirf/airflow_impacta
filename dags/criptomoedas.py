@@ -22,10 +22,11 @@ default_args = {
     'schedule_interval': None
     }
 
-HOST_BANCO_RELACIONAL = "172.29.0.3"
-HOST_BANCO_NAO_RELACIONAL="172.29.0.2"
-CODIGO_CRIPTO = None
+HOST_BANCO_RELACIONAL = "172.30.0.3"
+HOST_BANCO_NAO_RELACIONAL="172.30.0.2"
+CODIGO_CRIPTO = "BTC"
 VALOR_MAXIMO_ALERTA = 130000
+ENDERECO_EMAIL = "fabiano.felix@aluno.faculdadeimpacta.com.br"
 
 # DAG instance and tasks with decorators
 @dag(default_args=default_args, description='Extração de dados de Criptomoedas')
@@ -50,7 +51,7 @@ def coin_market():
             moeda = {
                 "codigo":coin["symbol"],  
                 "nome" : coin["name"],
-                "valor" : numpy.around(valor,5) ,
+                "valor" : numpy.around(valor,2) ,
                 "valor_24h" : numpy.around(brl["percent_change_24h"],5),
                 "valor_7d" : numpy.around(brl["percent_change_7d"],5),
                 "valor_30d" : numpy.around(brl["percent_change_30d"],5),
@@ -144,7 +145,7 @@ def coin_market():
 
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login("profissional.fabianorodrigues@gmail.com", "dwvwbxiybidpqtlf")
-        server.sendmail("profissional.fabianorodrigues@gmail.com","fabiano.rodrigues.felix@hotmail.com",message.as_string())
+        server.sendmail("profissional.fabianorodrigues@gmail.com",ENDERECO_EMAIL,message.as_string())
         server.quit()
 
         return True
