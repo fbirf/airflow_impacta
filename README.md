@@ -18,16 +18,19 @@ No arquivo **criptomoedas.py**, existe as seguintes constantes:
 
 # Acesso
 Os dados para acessar o **Airflow** são:
-**URL**: localhost:8080/
-**Usuário**: airflow
-**Senha**: airflow
+
+- **URL**: localhost:8080/
+- **Usuário**: airflow
+- **Senha**: airflow
 
 Os dados para acessar o **MongoDB** são:
-**URL**: localhost:27017/
-**Usuário**: root
-**Senha**: 123
+
+- **URL**: localhost:27017/
+- **Usuário**: root
+- **Senha**: 123
 
 Os dados para acessar o **PostgreSQL** são:
-**URL**: localhost:5432/
-**Usuário**: airflow
-**Senha**: airflow
+
+- **URL**: localhost:5432/
+- **Usuário**: airflow
+- **Senha**: airflow
