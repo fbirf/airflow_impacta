@@ -22,13 +22,10 @@ default_args = {
     'schedule_interval': None
     }
 
-HOST_BANCO_RELACIONAL = "172.30.0.3"
-HOST_BANCO_NAO_RELACIONAL="172.30.0.2"
 CODIGO_CRIPTO = "BTC"
-VALOR_MAXIMO_ALERTA = 130000
+VALOR_MAXIMO_ALERTA = 150000
 ENDERECO_EMAIL = "fabiano.felix@aluno.faculdadeimpacta.com.br"
 
-# DAG instance and tasks with decorators
 @dag(default_args=default_args, description='Extração de dados de Criptomoedas')
 def coin_market():
         
@@ -45,6 +42,8 @@ def coin_market():
 
         lista_moedas_geral = []
 
+        hoje = str(datetime.today().date())
+
         for coin in registros["data"]:
             brl = coin["quote"]["BRL"]
             valor = brl["price"]
@@ -56,7 +55,8 @@ def coin_market():
                 "valor_7d" : numpy.around(brl["percent_change_7d"],5),
                 "valor_30d" : numpy.around(brl["percent_change_30d"],5),
                 "valor_60d" : numpy.around(brl["percent_change_60d"],5),
-                "valor_90d" : numpy.around(brl["percent_change_90d"],5)
+                "valor_90d" : numpy.around(brl["percent_change_90d"],5),
+                "data_cadastro":hoje
             }
             lista_moedas_geral.append(moeda)
 
@@ -66,7 +66,9 @@ def coin_market():
     def salva_banco_dados_nao_relacional(registros):
         conexao = conecta_banco_nosql()
         cripto = conexao["criptomoeda"]
-        cripto.insert_many(registros)
+        quantidade_hoje = cripto.count_documents({"data_cadastro":str(datetime.today().date())})
+        if quantidade_hoje <= 0:
+            cripto.insert_many(registros)
         return True
    
     @task
@@ -97,7 +99,6 @@ def coin_market():
             return True
         except psycopg2.Error as e:
             return False
-
 
     @task
     def busca_moedas_abaixo_valor (relacional):
@@ -133,7 +134,7 @@ def coin_market():
         if len(lista) <= 0:
             return False
         else:
-            corpo_hmtl = "<h1>Lista de moedas que est&atilde;o abaixo de R$ 130.000,00:</h1>"
+            corpo_hmtl = "<h1>Lista de moedas que est&atilde;o abaixo de R$ %4.2f:</h1>" % VALOR_MAXIMO_ALERTA
             corpo_hmtl += "<table><tr><td><strong>Nome</strong></td><td><strong>Valor</strong></td></tr>"
             for moeda in lista:
                 corpo_hmtl+= "<tr><td>"+moeda["nome"]+"</td><td> R$ "+moeda["valor"]+"</td></tr>"
@@ -159,7 +160,7 @@ def coin_market():
             conn = psycopg2.connect(
                 user="airflow",
                 password="airflow",
-                host=HOST_BANCO_RELACIONAL,
+                host="10.0.0.3",
                 port=5432,
                 database="airflow"
 
@@ -177,7 +178,7 @@ def coin_market():
         return cur
     
     def conecta_banco_nosql():
-        CONNECTION_STRING = "mongodb://root:123@"+HOST_BANCO_NAO_RELACIONAL+"/?authMechanism=DEFAULT"
+        CONNECTION_STRING = "mongodb://root:123@10.0.0.2/?authMechanism=DEFAULT"
         client = MongoClient(CONNECTION_STRING)
         return client['airflow']
     

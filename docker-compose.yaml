@@ -71,6 +71,9 @@ services:
       - "27017:27017"
     volumes:
       - /home/renatogroffe/Desenvolvimento/Docker/Volumes/MongoDB:/data/db
+    networks:
+      rede_impacta:
+        ipv4_address: 10.0.0.2
 
   postgres:
     image: postgres:13
@@ -88,6 +91,9 @@ services:
       interval: 5s
       retries: 5
     restart: always
+    networks:
+      rede_impacta:
+        ipv4_address: 10.0.0.3
 
   redis:
     image: redis:latest
@@ -99,6 +105,9 @@ services:
       timeout: 30s
       retries: 50
     restart: always
+    networks:
+      rede_impacta:
+        ipv4_address: 10.0.0.4
 
   airflow-webserver:
     <<: *airflow-common
@@ -111,17 +120,25 @@ services:
       timeout: 10s
       retries: 5
     restart: always
-
+    networks:
+      rede_impacta:
+        ipv4_address: 10.0.0.5
 
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
     restart: always
+    networks:
+        rede_impacta:
+          ipv4_address: 10.0.0.6
 
   airflow-worker:
     <<: *airflow-common
     command: celery worker
     restart: always
+    networks:
+      rede_impacta:
+        ipv4_address: 10.0.0.7
 
   airflow-init:
     <<: *airflow-common
@@ -132,6 +149,9 @@ services:
       _AIRFLOW_WWW_USER_CREATE: 'true'
       _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+    networks:
+      rede_impacta:
+        ipv4_address: 10.0.0.8
 
   flower:
     <<: *airflow-common
@@ -144,6 +164,17 @@ services:
       timeout: 10s
       retries: 5
     restart: always
-
+    networks:
+      rede_impacta:
+        ipv4_address: 10.0.0.9
+        
 volumes:
   postgres-db-volume:
+
+networks:
+  rede_impacta:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.0.0.0/16
+         gateway: 10.0.0.1
