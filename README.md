@@ -50,6 +50,18 @@ Os dados para acessar o **PostgreSQL** são:
 
 **Senha**: airflow
 
+## Instalar módulos python
+
+Para que seja possível debuggar tranquilamente, **recomenda-se** instalar os seguintes módulos pelos comando abaixo:
+
+    pip install "apache-airflow[celery]==2.6.1" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.6.1/constraints-3.7.txt"
+    
+    pip install psycopg2
+    
+    pip install numpy
+    
+    pip install pymongo
+
 ## Debuggar script na máquina local
 
 Para debuggar o script, devemos comentar **todas as anotações e imports relacionados ao airflow** e **alterar as strings de conexão** do MongoDB e PostgreSQL para o host localhost (para rodar no Docker, eles utilizam os IPs 10.0.0.2 e 10.0.0.3 respectivamente)
